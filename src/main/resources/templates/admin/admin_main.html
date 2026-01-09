@@ -51,6 +51,69 @@
             </form>
         </div>
     </div>
+
+    <!-- Table -->
+    <div style="margin-top:35px">
+        <label style="font-size:25px"><b>Dostępne produkty</b></label>
+        <table class="table" >
+            <thead>
+            <tr>
+                <th>Nr (ID)</th>
+                <th>Nazwa (item name)</th>
+                <th>Ilość (quantity)</th>
+                <th>Kwota (Amount)</th>
+                <th>Operacje</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="sale : ${listSale}" >
+                <form th:action="@{/update}" th:object="${sale}" method="post">
+                    <td><label>
+                        <input type="text" name="id" th:value="${sale.id}" readonly/>
+                    </label></td>
+                    <td><label>
+                        <input type="text" name="item" th:value="${sale.item}"/>
+                    </label></td>
+                    <td><label>
+                        <input type="text" name="quantity" th:value="${sale.quantity}" />
+                    </label></td>
+                    <td><label>
+                        <input type="text" name="amount" th:value="${sale.amount}" />
+                    </label></td>
+                    <td>
+                        <button class="btn btn-primary" type="submit">Zapisz</button>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <a class="btn btn-danger" th:href="@{'/delete/' + ${sale.id}}">Usuń</a>
+                    </td>
+                </form>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <form action="/" th:action="@{/save}" th:object="${sale}" method="post">
+        <!-- Table -->
+        <table class = "table">
+            <tr>
+                <td>Nr (ID)</td>
+                <td><label>
+                    <input type="text" size="10" class="narrow-font" th:field="*{id}">
+                </label></td>
+                <td>Nazwa (item name)</td>
+                <td><label>
+                    <input type="text" size="30" class="narrow-font" th:field="*{item}">
+                </label></td>
+                <td>Ilość (quantity)</td>
+                <td><label>
+                    <input type="text" size="10" class="narrow-font" th:field="*{quantity}">
+                </label></td>
+                <td>Kwota (amount)</td>
+                <td><label>
+                    <input type="text" size="10" class="narrow-font" th:field="*{amount}">
+                </label></td>
+                <td colspan = "2"><button class="btn btn-primary" type="submit">Dodaj</button></td>
+            </tr>
+        </table>
+    </form>
 </div>
 
 <script th:src="@{/js/scripts.js}"></script>
