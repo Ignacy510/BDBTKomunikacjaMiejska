@@ -18,8 +18,8 @@ import java.util.List;
 public class AppController implements WebMvcConfigurer {
 
     private final SalesDAO dao;
-    private final AdresyDAO adresydao;
-    private final AutobusyDAO autobusydao;
+    private final AdresyDAO adresyDAO;
+    private final AutobusyDAO autobusyDAO;
     private final BiletyDAO biletyDAO;
     private final CzasoweDAO czasoweDAO;
     private final DlugoterminoweDAO dlugoterminoweDAO;
@@ -38,10 +38,10 @@ public class AppController implements WebMvcConfigurer {
     private final WynagrodzeniaDAO wynagrodzeniaDAO;
 
 
-    public AppController(SalesDAO dao, AdresyDAO adresydao, AutobusyDAO autobusydao, BiletyDAO biletyDAO, CzasoweDAO czasoweDAO, DlugoterminoweDAO dlugoterminoweDAO, Jednostki_KomunikacjiDAO jednostki_komunikacjiDAO, KierowcyDAO kierowcyDAO, KontrolerzyDAO kontrolerzyDAO, KursyDAO kursyDAO, LinieDAO linieDAO, MarkiDAO markiDAO, ModeleDAO modeleDAO, ObsadyDAO obsadyDAO, PracownicyDAO pracownicyDAO, PrzypisaniaDAO przypisaniaDAO, Przystanek_w_liniiDAO przystanek_w_liniiDAO, PrzystankiDAO przystankiDAO, WynagrodzeniaDAO wynagrodzeniaDAO) {
+    public AppController(SalesDAO dao, AdresyDAO adresyDAO, AutobusyDAO autobusyDAO, BiletyDAO biletyDAO, CzasoweDAO czasoweDAO, DlugoterminoweDAO dlugoterminoweDAO, Jednostki_KomunikacjiDAO jednostki_komunikacjiDAO, KierowcyDAO kierowcyDAO, KontrolerzyDAO kontrolerzyDAO, KursyDAO kursyDAO, LinieDAO linieDAO, MarkiDAO markiDAO, ModeleDAO modeleDAO, ObsadyDAO obsadyDAO, PracownicyDAO pracownicyDAO, PrzypisaniaDAO przypisaniaDAO, Przystanek_w_liniiDAO przystanek_w_liniiDAO, PrzystankiDAO przystankiDAO, WynagrodzeniaDAO wynagrodzeniaDAO) {
         this.dao = dao;
-        this.adresydao = adresydao;
-        this.autobusydao = autobusydao;
+        this.adresyDAO = adresyDAO;
+        this.autobusyDAO = autobusyDAO;
         this.biletyDAO = biletyDAO;
         this.czasoweDAO = czasoweDAO;
         this.dlugoterminoweDAO = dlugoterminoweDAO;
@@ -64,9 +64,9 @@ public class AppController implements WebMvcConfigurer {
     public String viewHomePage(Model model){
         List<Sale> listSale = dao.list();
         model.addAttribute("listSale", listSale);
-        List<Adresy> listAdresy = adresydao.list();
+        List<Adresy> listAdresy = adresyDAO.list();
         model.addAttribute("listAdresy", listAdresy);
-        List<Autobusy> listAutobusy = autobusydao.list();
+        List<Autobusy> listAutobusy = autobusyDAO.list();
         model.addAttribute("listAutobusy", listAutobusy);
         List<Bilety> listBilety = biletyDAO.list();
         model.addAttribute("listBilety", listBilety);
@@ -109,11 +109,11 @@ public class AppController implements WebMvcConfigurer {
         model.addAttribute("listSale", listSale);
         Sale sale = new Sale();
         model.addAttribute("sale", sale);
-        List<Adresy> listAdresy = adresydao.list();
+        List<Adresy> listAdresy = adresyDAO.list();
         model.addAttribute("listAdresy", listAdresy);
         Adresy adresy = new Adresy();
         model.addAttribute("adresy", adresy);
-        List<Autobusy> listAutobusy = autobusydao.list();
+        List<Autobusy> listAutobusy = autobusyDAO.list();
         model.addAttribute("listAutobusy", listAutobusy);
         Autobusy autobusy = new Autobusy();
         model.addAttribute("autobusy", autobusy);
