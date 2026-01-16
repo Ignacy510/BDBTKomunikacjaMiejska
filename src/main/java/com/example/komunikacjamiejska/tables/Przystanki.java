@@ -7,21 +7,21 @@ public class Przystanki {
     private String ulica;
     private String dzielnica;
     private String wspolrzedne_gps_dlugosc;
-    private String getWspolrzedne_gps_szerokosc;
+    private String wspolrzedne_gps_szerokosc;
     private int nr_jednostki;
 
     public Przystanki(){
         super();
     }
 
-    public Przystanki(int nr_przystanku, String miasto, String strefa, String ulica, String dzielnica, String wspolrzedne_gps_dlugosc, String getWspolrzedne_gps_szerokosc, int nr_jednostki) {
+    public Przystanki(int nr_przystanku, String miasto, String strefa, String ulica, String dzielnica, String wspolrzedne_gps_dlugosc, String wspolrzedne_gps_szerokosc, int nr_jednostki) {
         this.nr_przystanku = nr_przystanku;
         this.miasto = miasto;
         this.strefa = strefa;
         this.ulica = ulica;
         this.dzielnica = dzielnica;
         this.wspolrzedne_gps_dlugosc = wspolrzedne_gps_dlugosc;
-        this.getWspolrzedne_gps_szerokosc = getWspolrzedne_gps_szerokosc;
+        this.wspolrzedne_gps_szerokosc = wspolrzedne_gps_szerokosc;
         this.nr_jednostki = nr_jednostki;
     }
 
@@ -73,12 +73,12 @@ public class Przystanki {
         this.wspolrzedne_gps_dlugosc = wspolrzedne_gps_dlugosc;
     }
 
-    public String getGetWspolrzedne_gps_szerokosc() {
-        return getWspolrzedne_gps_szerokosc;
+    public String getWspolrzedne_gps_szerokosc() {
+        return wspolrzedne_gps_szerokosc;
     }
 
-    public void setGetWspolrzedne_gps_szerokosc(String getWspolrzedne_gps_szerokosc) {
-        this.getWspolrzedne_gps_szerokosc = getWspolrzedne_gps_szerokosc;
+    public void setWspolrzedne_gps_szerokosc(String wspolrzedne_gps_szerokosc) {
+        this.wspolrzedne_gps_szerokosc = wspolrzedne_gps_szerokosc;
     }
 
     public int getNr_jednostki() {
@@ -98,7 +98,7 @@ public class Przystanki {
                 ", ulica='" + ulica + '\'' +
                 ", dzielnica='" + dzielnica + '\'' +
                 ", wspolrzedne_gps_dlugosc='" + wspolrzedne_gps_dlugosc + '\'' +
-                ", getWspolrzedne_gps_szerokosc='" + getWspolrzedne_gps_szerokosc + '\'' +
+                ", wspolrzedne_gps_szerokosc='" + wspolrzedne_gps_szerokosc + '\'' +
                 ", nr_jednostki=" + nr_jednostki +
                 '}';
     }

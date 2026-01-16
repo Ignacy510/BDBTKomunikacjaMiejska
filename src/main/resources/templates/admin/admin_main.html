@@ -5,6 +5,16 @@
     <title>Admin Page</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <link th:rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        .container{
+            /*padding-left: 5vw;*/
+            /*padding-right: 5vw;*/
+            /*margin-left: 5vw;*/
+            /*margin-right: 5vw;*/
+            max-width: 90vw;
+        }
+    </style>
 </head>
 <body>
 <!-- Navigation -->
@@ -53,67 +63,116 @@
     </div>
 
     <!-- Table -->
-    <div style="margin-top:35px">
-        <label style="font-size:25px"><b>Dostępne produkty</b></label>
-        <table class="table" >
+    <div style="margin-top:35px" class="table-responsive">
+        <label style="font-size:25px"><b>Pracownicy</b></label>
+        <table class="table table-striped" >
             <thead>
             <tr>
-                <th>Nr (ID)</th>
-                <th>Nazwa (item name)</th>
-                <th>Ilość (quantity)</th>
-                <th>Kwota (Amount)</th>
-                <th>Operacje</th>
+                <th>Nr pracownika</th>
+                <th>Imię</th>
+                <th>Nazwisko</th>
+                <th>PESEL</th>
+                <th>Płeć</th>
+                <th>Data zatrudnienia</th>
+                <th>Nr telefonu</th>
+                <th>Email</th>
+                <th>Nr jednostki</th>
+                <th>Nr adresu</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="sale : ${listSale}" >
-                <form th:action="@{/update}" th:object="${sale}" method="post">
+            <tr th:each="p : ${listPracownicy}" >
+                <form th:action="@{/update}" th:object="${p}" method="post">
                     <td><label>
-                        <input type="text" name="id" th:value="${sale.id}" readonly/>
+                        <input type="text" name="nr_pracownika" th:value="${p.nr_pracownika}" readonly/>
                     </label></td>
                     <td><label>
-                        <input type="text" name="item" th:value="${sale.item}"/>
+                        <input type="text" name="imie" th:value="${p.imie}"/>
                     </label></td>
                     <td><label>
-                        <input type="text" name="quantity" th:value="${sale.quantity}" />
+                        <input type="text" name="nazwisko" th:value="${p.nazwisko}" />
                     </label></td>
                     <td><label>
-                        <input type="text" name="amount" th:value="${sale.amount}" />
+                        <input type="text" name="pesel" th:value="${p.pesel}" />
+                    </label></td>
+                    <td><label>
+                        <input type="text" name="plec" th:value="${p.plec}"/>
+                    </label></td>
+                    <td><label>
+                        <input type="text" name="data_zatrudnienia" th:value="${p.data_zatrudnienia}"/>
+                    </label></td>
+                    <td><label>
+                        <input type="text" name="nr_telefonu" th:value="${p.nr_telefonu}"/>
+                    </label></td>
+                    <td><label>
+                        <input type="text" name="email" th:value="${p.email}"/>
+                    </label></td>
+                    <td><label>
+                        <input type="text" name="nr_jednostki" th:value="${p.nr_jednostki}"/>
+                    </label></td>
+                    <td><label>
+                        <input type="text" name="nr_adresu" th:value="${p.nr_adresu}"/>
                     </label></td>
                     <td>
                         <button class="btn btn-primary" type="submit">Zapisz</button>
                         &nbsp;&nbsp;&nbsp;&nbsp;
-                        <a class="btn btn-danger" th:href="@{'/delete/' + ${sale.id}}">Usuń</a>
+                        <a class="btn btn-danger" th:href="@{'/delete/' + ${pracownicy.nr_pracownika}}">Usuń</a>
                     </td>
                 </form>
             </tr>
             </tbody>
         </table>
     </div>
-    <form action="/" th:action="@{/save}" th:object="${sale}" method="post">
-        <!-- Table -->
-        <table class = "table">
-            <tr>
-                <td>Nr (ID)</td>
-                <td><label>
-                    <input type="text" size="10" class="narrow-font" th:field="*{id}">
-                </label></td>
-                <td>Nazwa (item name)</td>
-                <td><label>
-                    <input type="text" size="30" class="narrow-font" th:field="*{item}">
-                </label></td>
-                <td>Ilość (quantity)</td>
-                <td><label>
-                    <input type="text" size="10" class="narrow-font" th:field="*{quantity}">
-                </label></td>
-                <td>Kwota (amount)</td>
-                <td><label>
-                    <input type="text" size="10" class="narrow-font" th:field="*{amount}">
-                </label></td>
-                <td colspan = "2"><button class="btn btn-primary" type="submit">Dodaj</button></td>
-            </tr>
-        </table>
-    </form>
+    <div class="table-responsive">
+        <form action="/" th:action="@{/save}" th:object="${pracownicy}" method="post" style="margin-top:35px">
+            <!-- Table -->
+            <table class = "table">
+                <tr>
+                    <td>Nr pracownika</td>
+                    <td><label>
+                        <input type="text" size="10" class="narrow-font" th:field="*{nr_pracownika}">
+                    </label></td>
+                    <td>Imię</td>
+                    <td><label>
+                        <input type="text" size="10" class="narrow-font" th:field="*{imie}">
+                    </label></td>
+                    <td>Nazwisko</td>
+                    <td><label>
+                        <input type="text" size="10" class="narrow-font" th:field="*{nazwisko}">
+                    </label></td>
+                    <td>PESEL</td>
+                    <td><label>
+                        <input type="text" size="10" class="narrow-font" th:field="*{pesel}">
+                    </label></td>
+                    <td>Płeć</td>
+                    <td><label>
+                        <input type="text" size="10" class="narrow-font" th:field="*{plec}">
+                    </label></td>
+                    <td>Data zatrudnienia</td>
+                    <td><label>
+                        <input type="text" size="10" class="narrow-font" th:field="*{data_zatrudnienia}">
+                    </label></td>
+                    <td>Nr telefonu</td>
+                    <td><label>
+                        <input type="text" size="10" class="narrow-font" th:field="*{nr_telefonu}">
+                    </label></td>
+                    <td>Email</td>
+                    <td><label>
+                        <input type="text" size="10" class="narrow-font" th:field="*{email}">
+                    </label></td>
+                    <td>Nr jednostki</td>
+                    <td><label>
+                        <input type="text" size="10" class="narrow-font" th:field="*{nr_jednostki}">
+                    </label></td>
+                    <td>Nr adresu</td>
+                    <td><label>
+                        <input type="text" size="10" class="narrow-font" th:field="*{nr_adresu}">
+                    </label></td>
+                    <td colspan = "2"><button class="btn btn-primary" type="submit">Dodaj</button></td>
+                </tr>
+            </table>
+        </form>
+    </div>
 </div>
 
 <script th:src="@{/js/scripts.js}"></script>

@@ -23,6 +23,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/css/**").permitAll()
                         .requestMatchers("/assets/**").permitAll()
                         .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/bus_stops/**").permitAll()
                         .requestMatchers("/admin_main").hasRole("ADMIN")
                         .requestMatchers("/user_main").hasRole("USER")
                         .anyRequest().authenticated()

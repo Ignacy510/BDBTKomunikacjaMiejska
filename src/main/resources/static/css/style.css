@@ -6,3 +6,30 @@
     width: 640px;
     height:458px;
 }
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 0px;
+}
+
+.cell {
+    border: 1px solid black;
+    padding: 8px 16px;
+    text-align: center;
+    font-size: 20px;
+}
+
+/*.form-wrap tr {*/
+/*    display: flex;*/
+/*    flex-wrap: wrap;*/
+/*}*/
+
+/*.form-wrap td {*/
+/*    width: 25%;*/
+/*    min-width: 200px;*/
+/*}*/
+
+/*.form-wrap input {*/
+/*    width: 100%;*/
+/*}*/
