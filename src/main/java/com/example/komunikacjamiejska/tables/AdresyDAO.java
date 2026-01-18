@@ -13,7 +13,6 @@ public class AdresyDAO {
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    // Wstrzykujemy oba szablony (zwykły i nazwany)
     public AdresyDAO(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
@@ -24,7 +23,6 @@ public class AdresyDAO {
         return jdbcTemplate.query(sql, BeanPropertyRowMapper.newInstance(Adresy.class));
     }
 
-    // Metoda zapisująca adres (ID nadawane automatycznie przez bazę)
     public void save(Adresy adres) {
         String sql = "INSERT INTO ADRESY (miasto, ulica, nr_domu, nr_lokalu, kod_pocztowy) " +
                 "VALUES (:miasto, :ulica, :nr_domu, :nr_lokalu, :kod_pocztowy)";
@@ -33,8 +31,6 @@ public class AdresyDAO {
         namedParameterJdbcTemplate.update(sql, param);
     }
 
-    // Metoda pobierająca ID ostatnio dodanego adresu
-    // (Używana w Controllerze, żeby przypisać ten adres do pracownika)
     public int getLastId() {
         String sql = "SELECT MAX(nr_adresu) FROM ADRESY";
         Integer id = jdbcTemplate.queryForObject(sql, Integer.class);

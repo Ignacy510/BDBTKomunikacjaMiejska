@@ -13,7 +13,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.security.Principal;
-import java.time.LocalDate; // Import do dat
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +42,6 @@ public class AppController implements WebMvcConfigurer {
     private final PrzystankiDAO przystankiDAO;
     private final WynagrodzeniaDAO wynagrodzeniaDAO;
 
-    // Do zarządzania kontami
     private final InMemoryUserDetailsManager userDetailsManager;
     private final PasswordEncoder passwordEncoder;
 
@@ -181,7 +180,6 @@ public class AppController implements WebMvcConfigurer {
 
         List<Pracownicy> pracownicy = pracownicyDAO.list();
 
-        // Mapa: ID Pracownika -> CzyMaKonto (true/false)
         Map<Integer, Boolean> mapaKont = pracownicy.stream()
                 .collect(Collectors.toMap(
                         Pracownicy::getNr_pracownika,
@@ -223,9 +221,6 @@ public class AppController implements WebMvcConfigurer {
         return "admin/admin_main";
     }
 
-    // --- ZARZĄDZANIE KONTAMI (POPRAWIONE I ROZBUDOWANE) ---
-
-    // 1. TWORZENIE
     @PostMapping("/admin/createAccount")
     public String createAccount(@RequestParam("nr_pracownika") int id,
                                 @RequestParam("username") String username,
@@ -236,24 +231,17 @@ public class AppController implements WebMvcConfigurer {
         return "redirect:/admin_main";
     }
 
-    // 2. EDYCJA I USUWANIE (NOWA METODA)
     @PostMapping("/admin/editAccount")
     public String editAccount(@RequestParam("oldUsername") String oldUsername,
                               @RequestParam("newUsername") String newUsername,
                               @RequestParam("newPassword") String newPassword,
                               @RequestParam(value = "action", required = false) String action) {
 
-        // Sprawdź czy użytkownik istnieje
         if (userDetailsManager.userExists(oldUsername)) {
-
-            // Jeśli akcja to USUWANIE
             if ("delete".equals(action)) {
                 userDetailsManager.deleteUser(oldUsername);
             }
-            // Jeśli akcja to EDYCJA (zmiana nazwy/hasła)
             else {
-                // W InMemoryUserDetailsManager nie ma "updateUser" dla zmiany nazwy,
-                // więc usuwamy starego i tworzymy nowego.
                 userDetailsManager.deleteUser(oldUsername);
                 createUserInternal(newUsername, newPassword);
             }
@@ -261,7 +249,6 @@ public class AppController implements WebMvcConfigurer {
         return "redirect:/admin_main";
     }
 
-    // Metoda pomocnicza
     private void createUserInternal(String username, String password) {
         UserDetails user = User.withUsername(username)
                 .password(passwordEncoder.encode(password))
@@ -270,17 +257,12 @@ public class AppController implements WebMvcConfigurer {
         userDetailsManager.createUser(user);
     }
 
-    // ------------------------------------------------------------
-
-    // --- METODA DLA USERA ---
     @GetMapping("/user_main")
     public String viewUserPage(Model model, Principal principal) {
         String login = principal.getName();
 
-        // 1. Dynamiczne ID z loginu
         int finalIdPracownika = -1;
 
-        // Logika: wyciągamy liczby z loginu (np. user5 -> 5, kierowca5 -> 5)
         String numbers = login.replaceAll("[^0-9]", "");
         if (!numbers.isEmpty()) {
             try {
@@ -288,24 +270,20 @@ public class AppController implements WebMvcConfigurer {
             } catch (NumberFormatException e) {}
         }
 
-        // Fallbacki dla statycznych kont z configu (jesli sa)
         if ("user1".equals(login)) finalIdPracownika = 1;
         if ("user2".equals(login)) finalIdPracownika = 2;
 
         int finalId = finalIdPracownika;
 
-        // 2. Pobranie pracownika
         Pracownicy zalogowanyPracownik = pracownicyDAO.list().stream()
                 .filter(p -> p.getNr_pracownika() == finalId)
                 .findFirst()
                 .orElse(null);
 
-        // 3. Obsady
         List<Obsady> mojeObsady = obsadyDAO.list().stream()
                 .filter(o -> o.getNr_pracownika() == finalId)
                 .collect(Collectors.toList());
 
-        // 4. Kursy
         List<Integer> idKursow = mojeObsady.stream()
                 .map(Obsady::getNr_kursu)
                 .collect(Collectors.toList());
@@ -314,7 +292,6 @@ public class AppController implements WebMvcConfigurer {
                 .filter(k -> idKursow.contains(k.getNr_kursu()))
                 .collect(Collectors.toList());
 
-        // --- DANE SZCZEGÓŁOWE ---
         Map<Integer, Przystanki> slownikPrzystankow = przystankiDAO.list().stream()
                 .collect(Collectors.toMap(Przystanki::getNr_przystanku, p -> p));
 

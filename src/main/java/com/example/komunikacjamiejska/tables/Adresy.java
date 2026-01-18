@@ -1,11 +1,11 @@
 package com.example.komunikacjamiejska.tables;
 
 public class Adresy {
-    // Zmiana int na Integer dla bezpieczeństwa (obsługa nulli z bazy)
+
     private Integer nr_adresu;
     private String ulica;
     private String nr_domu;
-    private String nr_lokalu; // String jest ok, bo lokal może być pusty lub mieć litery "4a"
+    private String nr_lokalu;
     private String kod_pocztowy;
     private String miasto;
 
@@ -22,7 +22,7 @@ public class Adresy {
         this.miasto = miasto;
     }
 
-    // --- GETTERY I SETTERY (zaktualizowane do Integer) ---
+
 
     public Integer getNr_adresu() {
         return nr_adresu;
