@@ -1,31 +1,49 @@
 <!DOCTYPE HTML>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-
-extras-springsecurity6">
+<html lang="pl" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <meta charset="UTF-8"/>
-    <title>User Page</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <title>Panel Pracownika</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .clickable-row {
+            cursor: pointer;
+        }
+        .clickable-row:hover {
+            background-color: #f8f9fa !important; /* Lekkie podświetlenie po najechaniu */
+        }
+
+        /* Styl dla strzałki */
+        .arrow-icon {
+            float: right;
+            font-size: 1.2em;
+            color: #666;
+            transition: transform 0.3s ease; /* Płynna animacja obrotu */
+            display: inline-block;
+        }
+
+        /* Gdy wiersz jest rozwinięty (Bootstrap dodaje aria-expanded="true"), obróć strzałkę */
+        .clickable-row[aria-expanded="true"] .arrow-icon {
+            transform: rotate(180deg);
+        }
+    </style>
 </head>
 <body>
-<!-- Navigation -->
+
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
     <div class="container">
         <a class="navbar-brand" href="/">Spring Boot projekt - część II</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
-                aria-controls="navbarResponsive"
-                aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/index}">Strona główna</a>
-                </li>
-            </ul>
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="">Zalogowany jako <b style="color:lightskyblue; text-transform:capitalize" sec:authentication="principal.username"></b></a>
+                    <a class="nav-link" href="#">
+                        Zalogowany jako
+                        <b style="color:lightskyblue; text-transform:capitalize"
+                           th:if="${pracownik != null}"
+                           th:text="${pracownik.imie} + ' ' + ${pracownik.nazwisko}">
+                        </b>
+                        <b style="color:lightskyblue" th:if="${pracownik == null}" sec:authentication="principal.username"></b>
+                    </a>
                 </li>
                 <li class="nav-item">
                     <form th:action="@{/logout}" method="post" th:hidden="true" name="LogoutForm">
@@ -37,25 +55,155 @@ extras-springsecurity6">
         </div>
     </div>
 </nav>
+
 <div class="container">
     <div class="row">
-        <div class="col-md-10 mt-5">
-            <div class="form-group">
-                <label style="font-size:30px" th:inline="text">Witaj <a style="color:lightskyblue; text-transform:capitalize"><b sec:authentication="principal.username"></b></a>
-                    na stronie głównej!</label>
-                <div style="font-size:20px;">Jeśli chcesz się wylogować, wybierz przycisk wyloguj pod tym tekstem.</div>
+        <div class="col-md-12 mt-5">
+
+            <div class="mb-4">
+                <h2>Panel Pracownika</h2>
+                <p class="lead">Witaj <span style="color: #0d6efd; font-weight: bold;" th:if="${pracownik != null}" th:text="${pracownik.imie}"></span><span th:if="${pracownik == null}" sec:authentication="principal.username"></span>!</p>
             </div>
-            <form method="post" th:action="@{/logout}">
-                <div style="margin-top:10px">
-                    <button class="btn btn-primary" type="submit" value="Wyloguj się">Wyloguj się</button>
+
+            <div th:if="${pracownik != null}" class="card mb-5 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    Twoje Dane Osobowe
                 </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <strong>Imię i Nazwisko:</strong><br>
+                            <span th:text="${pracownik.imie}"></span> <span th:text="${pracownik.nazwisko}"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Numer Pracownika:</strong><br>
+                            <span th:text="${pracownik.nr_pracownika}"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Email:</strong><br>
+                            <span th:text="${pracownik.email}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${pracownik != null}">
+                <h3 class="mb-3">Twój Grafik (Przypisane Kursy)</h3>
+                <p class="text-muted small"><i class="bi bi-info-circle"></i> Kliknij w wiersz tabeli, aby rozwinąć szczegóły trasy i pojazdu.</p>
+
+                <div th:if="${mojeKursy == null || mojeKursy.isEmpty()}" class="alert alert-warning">
+                    Nie masz zaplanowanych żadnych kursów w najbliższym czasie.
+                </div>
+
+                <table class="table table-hover table-bordered align-middle" th:if="${mojeKursy != null && !mojeKursy.isEmpty()}">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Nr Kursu</th>
+                        <th>Rozpoczęcie</th>
+                        <th>Zakończenie</th>
+                        <th>Linia</th>
+                        <th>Autobus</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody th:each="kurs : ${mojeKursy}">
+
+                    <tr class="clickable-row" data-bs-toggle="collapse" th:data-bs-target="'#details-' + ${kurs.nr_kursu}" aria-expanded="false">
+                        <td class="fw-bold" th:text="${kurs.nr_kursu}"></td>
+
+                        <td th:text="${kurs.data_rozpoczecia}"></td>
+                        <td th:text="${kurs.data_zakonczenia}"></td>
+
+                        <td><span class="badge bg-secondary" th:text="${kurs.nr_linii}"></span></td>
+
+                        <td th:text="${mapaAutobusow.get(kurs.nr_kursu).nr_rejestracyjny}"></td>
+
+                        <td>
+                                <span th:if="${mapaStatusow.get(kurs.nr_kursu) == 'Zakończony'}"
+                                      class="badge bg-secondary">Zakończony</span>
+
+                            <span th:if="${mapaStatusow.get(kurs.nr_kursu) == 'Zaplanowany'}"
+                                  class="badge bg-success">Zaplanowany</span>
+
+                            <span th:if="${mapaStatusow.get(kurs.nr_kursu) == 'W trakcie'}"
+                                  class="badge bg-primary">
+                                      W trakcie <span class="spinner-grow spinner-grow-sm" style="width: 0.7rem; height: 0.7rem;" role="status"></span>
+                                </span>
+
+                            <span class="arrow-icon">&#9660;</span>
+                        </td>
+                    </tr>
+
+                    <tr class="collapse bg-light" th:id="'details-' + ${kurs.nr_kursu}">
+                        <td colspan="6" class="p-4">
+                            <div class="row">
+                                <div class="col-md-5 border-end">
+                                    <h5 class="text-primary border-bottom pb-2">Szczegóły Pojazdu</h5>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Wymagany typ:</strong> <span th:text="${mapaLinii.get(kurs.nr_kursu).rodzaj_autobusu}"></span></li>
+                                        <li class="mt-2"><strong>Przypisany autobus:</strong></li>
+                                        <li>Nr Rejestracyjny: <b th:text="${mapaAutobusow.get(kurs.nr_kursu).nr_rejestracyjny}"></b></li>
+                                        <li>Model: <span th:text="${mapaAutobusow.get(kurs.nr_kursu).rodzaj_autobusu}"></span></li>
+                                        <li>Miejsc: <span th:text="${mapaAutobusow.get(kurs.nr_kursu).liczba_miejsc}"></span></li>
+                                        <li>Paliwo: <span th:text="${mapaAutobusow.get(kurs.nr_kursu).rodzaj_paliwa}"></span></li>
+                                    </ul>
+                                </div>
+
+                                <div class="col-md-7">
+                                    <h5 class="text-success border-bottom pb-2">Trasa Przejazdu</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th>Lp.</th>
+                                                <th>Przystanek</th>
+                                                <th>Czas (min)</th>
+                                                <th>Na żądanie</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <tr th:each="pwl : ${mapaTras.get(kurs.nr_kursu)}">
+                                                <td th:text="${pwl.kolejnosc}"></td>
+                                                <td>
+                                                    <span th:text="${slownikPrzystankow.get(pwl.nr_przystanku).ulica}"></span>
+                                                    <span class="text-muted small" th:text="'(' + ${slownikPrzystankow.get(pwl.nr_przystanku).dzielnica} + ')'"></span>
+                                                </td>
+                                                <td th:text="${pwl.czas_do_nastepnego}"></td>
+                                                <td>
+                                                    <span th:if="${pwl.czy_na_zadanie == 'T'}" class="badge bg-warning text-dark">TAK</span>
+                                                    <span th:if="${pwl.czy_na_zadanie != 'T'}" class="text-muted">-</span>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${pracownik == null}" class="alert alert-danger mt-4">
+                <strong>Błąd krytyczny:</strong> Nie udało się pobrać danych pracownika.
+                Sprawdź, czy Twoje konto (user1/user2) jest poprawnie powiązane z tabelą PRACOWNICY w bazie danych.
+            </div>
+
+            <form method="post" th:action="@{/logout}" class="mt-5 mb-5 text-end">
+                <button class="btn btn-outline-danger" type="submit">Wyloguj się</button>
             </form>
+
         </div>
     </div>
 </div>
 
 <script th:src="@{/js/scripts.js}"></script>
-<script>autoLogOut()</script>
+<script>
+    if (typeof autoLogOut === "function") {
+        autoLogOut();
+    }
+</script>
 
 </body>
 </html>

@@ -2,12 +2,18 @@ package com.example.komunikacjamiejska;
 
 import com.example.komunikacjamiejska.tables.*;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.security.Principal;
+import java.time.LocalDate; // Import do dat
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +42,12 @@ public class AppController implements WebMvcConfigurer {
     private final PrzystankiDAO przystankiDAO;
     private final WynagrodzeniaDAO wynagrodzeniaDAO;
 
-//SalesDAO dao
-    public AppController(AdresyDAO adresyDAO, AutobusyDAO autobusyDAO, BiletyDAO biletyDAO, CzasoweDAO czasoweDAO, DlugoterminoweDAO dlugoterminoweDAO, Jednostki_KomunikacjiDAO jednostki_komunikacjiDAO, KierowcyDAO kierowcyDAO, KontrolerzyDAO kontrolerzyDAO, KursyDAO kursyDAO, LinieDAO linieDAO, MarkiDAO markiDAO, ModeleDAO modeleDAO, ObsadyDAO obsadyDAO, PracownicyDAO pracownicyDAO, PrzypisaniaDAO przypisaniaDAO, Przystanek_w_liniiDAO przystanek_w_liniiDAO, PrzystankiDAO przystankiDAO, WynagrodzeniaDAO wynagrodzeniaDAO) {
+    // Do zarządzania kontami
+    private final InMemoryUserDetailsManager userDetailsManager;
+    private final PasswordEncoder passwordEncoder;
+
+    //SalesDAO dao
+    public AppController(AdresyDAO adresyDAO, AutobusyDAO autobusyDAO, BiletyDAO biletyDAO, CzasoweDAO czasoweDAO, DlugoterminoweDAO dlugoterminoweDAO, Jednostki_KomunikacjiDAO jednostki_komunikacjiDAO, KierowcyDAO kierowcyDAO, KontrolerzyDAO kontrolerzyDAO, KursyDAO kursyDAO, LinieDAO linieDAO, MarkiDAO markiDAO, ModeleDAO modeleDAO, ObsadyDAO obsadyDAO, PracownicyDAO pracownicyDAO, PrzypisaniaDAO przypisaniaDAO, Przystanek_w_liniiDAO przystanek_w_liniiDAO, PrzystankiDAO przystankiDAO, WynagrodzeniaDAO wynagrodzeniaDAO, InMemoryUserDetailsManager userDetailsManager, PasswordEncoder passwordEncoder) {
         //this.dao = dao;
         this.adresyDAO = adresyDAO;
         this.autobusyDAO = autobusyDAO;
@@ -57,6 +67,8 @@ public class AppController implements WebMvcConfigurer {
         this.przystanek_w_liniiDAO = przystanek_w_liniiDAO;
         this.przystankiDAO = przystankiDAO;
         this.wynagrodzeniaDAO = wynagrodzeniaDAO;
+        this.userDetailsManager = userDetailsManager;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping({"/index", "/"})
@@ -167,9 +179,29 @@ public class AppController implements WebMvcConfigurer {
 //        Obsady obsady = new Obsady();
 //        model.addAttribute("obsady", obsady);
 
-        model.addAttribute("listPracownicy", pracownicyDAO.list());
+        List<Pracownicy> pracownicy = pracownicyDAO.list();
 
+        // Mapa: ID Pracownika -> CzyMaKonto (true/false)
+        Map<Integer, Boolean> mapaKont = pracownicy.stream()
+                .collect(Collectors.toMap(
+                        Pracownicy::getNr_pracownika,
+                        p -> userDetailsManager.userExists("user" + p.getNr_pracownika())
+                ));
+
+        Map<Integer, String> mapaAdresow = adresyDAO.list().stream()
+                .collect(Collectors.toMap(
+                        Adresy::getNr_adresu,
+                        a -> (a.getMiasto() != null ? a.getMiasto() : "") + ", ul. " +
+                                (a.getUlica() != null ? a.getUlica() : "") + " " +
+                                (a.getNr_domu() != null ? a.getNr_domu() : "") +
+                                (a.getNr_lokalu() != null && !a.getNr_lokalu().isEmpty() ? "/" + a.getNr_lokalu() : "")
+                ));
+
+        model.addAttribute("listPracownicy", pracownicy);
         model.addAttribute("pracownicy", new Pracownicy());
+        model.addAttribute("mapaKont", mapaKont);
+        model.addAttribute("mapaAdresow", mapaAdresow);
+
 //        List<Przypisania> listPrzypisania = przypisaniaDAO.list();
 //        model.addAttribute("listPrzypisania", listPrzypisania);
 //        Przypisania przypisania = new Przypisania();
@@ -191,58 +223,208 @@ public class AppController implements WebMvcConfigurer {
         return "admin/admin_main";
     }
 
-//    @GetMapping("/bus_stops")
-//    public String showLine(Model model){
-//        model.addAttribute("listLinie", linieDAO.list());
-//        model.addAttribute("wybranaLinia", null);
-//        model.addAttribute("przystanek_w_linii", List.of());
-//        return "bus_stops";
-//    }
+    // --- ZARZĄDZANIE KONTAMI (POPRAWIONE I ROZBUDOWANE) ---
+
+    // 1. TWORZENIE
+    @PostMapping("/admin/createAccount")
+    public String createAccount(@RequestParam("nr_pracownika") int id,
+                                @RequestParam("username") String username,
+                                @RequestParam("password") String password) {
+        if (!userDetailsManager.userExists(username)) {
+            createUserInternal(username, password);
+        }
+        return "redirect:/admin_main";
+    }
+
+    // 2. EDYCJA I USUWANIE (NOWA METODA)
+    @PostMapping("/admin/editAccount")
+    public String editAccount(@RequestParam("oldUsername") String oldUsername,
+                              @RequestParam("newUsername") String newUsername,
+                              @RequestParam("newPassword") String newPassword,
+                              @RequestParam(value = "action", required = false) String action) {
+
+        // Sprawdź czy użytkownik istnieje
+        if (userDetailsManager.userExists(oldUsername)) {
+
+            // Jeśli akcja to USUWANIE
+            if ("delete".equals(action)) {
+                userDetailsManager.deleteUser(oldUsername);
+            }
+            // Jeśli akcja to EDYCJA (zmiana nazwy/hasła)
+            else {
+                // W InMemoryUserDetailsManager nie ma "updateUser" dla zmiany nazwy,
+                // więc usuwamy starego i tworzymy nowego.
+                userDetailsManager.deleteUser(oldUsername);
+                createUserInternal(newUsername, newPassword);
+            }
+        }
+        return "redirect:/admin_main";
+    }
+
+    // Metoda pomocnicza
+    private void createUserInternal(String username, String password) {
+        UserDetails user = User.withUsername(username)
+                .password(passwordEncoder.encode(password))
+                .roles("USER")
+                .build();
+        userDetailsManager.createUser(user);
+    }
+
+    // ------------------------------------------------------------
+
+    // --- METODA DLA USERA ---
+    @GetMapping("/user_main")
+    public String viewUserPage(Model model, Principal principal) {
+        String login = principal.getName();
+
+        // 1. Dynamiczne ID z loginu
+        int finalIdPracownika = -1;
+
+        // Logika: wyciągamy liczby z loginu (np. user5 -> 5, kierowca5 -> 5)
+        String numbers = login.replaceAll("[^0-9]", "");
+        if (!numbers.isEmpty()) {
+            try {
+                finalIdPracownika = Integer.parseInt(numbers);
+            } catch (NumberFormatException e) {}
+        }
+
+        // Fallbacki dla statycznych kont z configu (jesli sa)
+        if ("user1".equals(login)) finalIdPracownika = 1;
+        if ("user2".equals(login)) finalIdPracownika = 2;
+
+        int finalId = finalIdPracownika;
+
+        // 2. Pobranie pracownika
+        Pracownicy zalogowanyPracownik = pracownicyDAO.list().stream()
+                .filter(p -> p.getNr_pracownika() == finalId)
+                .findFirst()
+                .orElse(null);
+
+        // 3. Obsady
+        List<Obsady> mojeObsady = obsadyDAO.list().stream()
+                .filter(o -> o.getNr_pracownika() == finalId)
+                .collect(Collectors.toList());
+
+        // 4. Kursy
+        List<Integer> idKursow = mojeObsady.stream()
+                .map(Obsady::getNr_kursu)
+                .collect(Collectors.toList());
+
+        List<Kursy> mojeKursy = kursyDAO.list().stream()
+                .filter(k -> idKursow.contains(k.getNr_kursu()))
+                .collect(Collectors.toList());
+
+        // --- DANE SZCZEGÓŁOWE ---
+        Map<Integer, Przystanki> slownikPrzystankow = przystankiDAO.list().stream()
+                .collect(Collectors.toMap(Przystanki::getNr_przystanku, p -> p));
+
+        java.util.Map<Integer, Linie> mapaLinii = new java.util.HashMap<>();
+        java.util.Map<Integer, Autobusy> mapaAutobusow = new java.util.HashMap<>();
+        java.util.Map<Integer, List<Przystanek_w_linii>> mapaTras = new java.util.HashMap<>();
+        java.util.Map<Integer, String> mapaStatusow = new java.util.HashMap<>();
+
+        LocalDate dzisiaj = LocalDate.now();
+
+        for (Kursy kurs : mojeKursy) {
+            Linie linia = linieDAO.list().stream().filter(l -> l.getNr_linii() == kurs.getNr_linii()).findFirst().orElse(new Linie());
+            mapaLinii.put(kurs.getNr_kursu(), linia);
+
+            Autobusy autobus = autobusyDAO.list().stream().filter(a -> a.getNr_autobusu() == kurs.getNr_autobusu()).findFirst().orElse(new Autobusy());
+            mapaAutobusow.put(kurs.getNr_kursu(), autobus);
+
+            List<Przystanek_w_linii> trasa = przystanek_w_liniiDAO.list().stream()
+                    .filter(p -> p.getNr_linii() == kurs.getNr_linii())
+                    .sorted(Comparator.comparingInt(Przystanek_w_linii::getKolejnosc))
+                    .collect(Collectors.toList());
+            mapaTras.put(kurs.getNr_kursu(), trasa);
+
+            LocalDate dataStartu = null;
+            LocalDate dataKonca = null;
+            try {
+                if (kurs.getData_rozpoczecia() != null) {
+                    String s = kurs.getData_rozpoczecia().toString();
+                    if(s.contains(" ")) s = s.split(" ")[0];
+                    dataStartu = LocalDate.parse(s);
+                }
+                if (kurs.getData_zakonczenia() != null) {
+                    String s = kurs.getData_zakonczenia().toString();
+                    if(s.contains(" ")) s = s.split(" ")[0];
+                    dataKonca = LocalDate.parse(s);
+                }
+            } catch (Exception e) {}
+
+            if (dataKonca != null && dataKonca.isBefore(dzisiaj)) {
+                mapaStatusow.put(kurs.getNr_kursu(), "Zakończony");
+            } else if (dataStartu != null && dataStartu.isAfter(dzisiaj)) {
+                mapaStatusow.put(kurs.getNr_kursu(), "Zaplanowany");
+            } else {
+                mapaStatusow.put(kurs.getNr_kursu(), "W trakcie");
+            }
+        }
+
+        model.addAttribute("pracownik", zalogowanyPracownik);
+        model.addAttribute("mojeKursy", mojeKursy);
+        model.addAttribute("mapaLinii", mapaLinii);
+        model.addAttribute("mapaAutobusow", mapaAutobusow);
+        model.addAttribute("mapaTras", mapaTras);
+        model.addAttribute("slownikPrzystankow", slownikPrzystankow);
+        model.addAttribute("mapaStatusow", mapaStatusow);
+
+        if (zalogowanyPracownik == null) {
+            model.addAttribute("error", "Brak danych pracownika dla zalogowanego użytkownika.");
+        }
+
+        return "user/user_main";
+    }
 
     @GetMapping("/bus_stops/{nr_linii}")
     public String showBusStops(@PathVariable int nr_linii, Model model) {
         model.addAttribute("listLinie", linieDAO.list());
-
-        // filtrowanie przystanków tylko dla wybranej linii
-//        List<Przystanek_w_linii> przystanek_w_linii = przystanek_w_liniiDAO.list().stream()
-//                .filter(p -> p.getNr_linii() == nr_linii)
-//                .sorted(Comparator.comparingInt(Przystanek_w_linii::getKolejnosc))
-//                .toList();
-        Map<Integer, Przystanki> mapaPrzystankow =
-                przystankiDAO.list().stream()
-                        .collect(Collectors.toMap(
-                                Przystanki::getNr_przystanku,
-                                p -> p
-                        ));
-        List<Przystanek_w_linii> przystanek_w_linii =
-                przystanek_w_liniiDAO.list().stream()
-                        .filter(p -> p.getNr_linii() == nr_linii)
-                        .sorted(Comparator.comparingInt(Przystanek_w_linii::getKolejnosc))
-                        .toList();
-
+        Map<Integer, Przystanki> mapaPrzystankow = przystankiDAO.list().stream().collect(Collectors.toMap(Przystanki::getNr_przystanku, p -> p));
+        List<Przystanek_w_linii> przystanek_w_linii = przystanek_w_liniiDAO.list().stream()
+                .filter(p -> p.getNr_linii() == nr_linii)
+                .sorted(Comparator.comparingInt(Przystanek_w_linii::getKolejnosc)).toList();
         model.addAttribute("wybranaLinia", nr_linii);
         model.addAttribute("przystanek_w_linii", przystanek_w_linii);
         model.addAttribute("mapaPrzystankow", mapaPrzystankow);
         return "index";
     }
 
-//    @RequestMapping(value = "/save", method = RequestMethod.POST)
-//    public String save(@ModelAttribute("sale") Sale sale) {
-//        //dao.save(sale);
-//        return "redirect:/admin_main";
-//    }
-//
-//    @RequestMapping(value = "/update", method = RequestMethod.POST)
-//    public String update(@ModelAttribute("sale") Sale sale) {
-//        //dao.update(sale);
-//        return "redirect:/admin_main";
-//    }
-//
-//    @RequestMapping("/delete/{id}")
-//    public String delete(@PathVariable int id) {
-//        //dao.delete(id);
-//        return "redirect:/admin_main";
-//    }
+
+    @RequestMapping(value = "/save", method = RequestMethod.POST)
+    public String save(@ModelAttribute("pracownicy") Pracownicy pracownicy,
+                       @RequestParam("miasto") String miasto,
+                       @RequestParam("ulica") String ulica,
+                       @RequestParam("nr_domu") String nrDomu,
+                       @RequestParam(value = "nr_lokalu", required = false) String nrLokalu,
+                       @RequestParam("kod_pocztowy") String kodPocztowy) {
+
+        Adresy nowyAdres = new Adresy();
+        nowyAdres.setMiasto(miasto);
+        nowyAdres.setUlica(ulica);
+        nowyAdres.setNr_domu(nrDomu);
+        nowyAdres.setNr_lokalu(nrLokalu);
+        nowyAdres.setKod_pocztowy(kodPocztowy);
+
+        adresyDAO.save(nowyAdres);
+        int idAdresu = adresyDAO.getLastId();
+        pracownicy.setNr_adresu(idAdresu);
+        pracownicyDAO.save(pracownicy);
+
+        return "redirect:/admin_main";
+    }
+
+    @RequestMapping(value = "/update", method = RequestMethod.POST)
+    public String update(@ModelAttribute("pracownicy") Pracownicy pracownicy) {
+        pracownicyDAO.update(pracownicy);
+        return "redirect:/admin_main";
+    }
+
+    @RequestMapping("/delete/{id}")
+    public String delete(@PathVariable int id) {
+        pracownicyDAO.delete(id);
+        return "redirect:/admin_main";
+    }
 
     public void addViewControllers(ViewControllerRegistry registry){
 //        registry.addViewController("/index").setViewName("index");
