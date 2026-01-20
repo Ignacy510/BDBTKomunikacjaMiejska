@@ -1,279 +1,165 @@
 <!DOCTYPE HTML>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<script>
-    history.replaceState('data to be passed', 'Title of the page', "/");
-</script>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>Main Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Jednostka Komunikacji Miejskiej</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+
     <link th:rel="stylesheet" th:href="@{/css/style.css}"/>
 
     <style>
-        /*#auto {*/
-        /*    border-collapse: collapse;*/
-        /*    width: auto;*/
-        /*    min-width: 200px;*/
-        /*}*/
-        th, td {
-            border: 1px solid black;
-            padding: 8px 16px;
-            text-align: center;
+        .location-link {
+            transition: color 0.2s;
         }
-        th {
-            background-color: #eee;
-        }
-        .btn-linia {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 0;
-            border: 2px solid #333;
-            border-radius: 6px;
-            background-color: #f5f5f5;
-            color: #000;
-            text-decoration: none;
-            font-size: clamp(16px, 1.5vw, 22px);
-            font-weight: 600;
-            transition: background-color 0.2s, transform 0.1s;
-        }
-        .btn-linia:hover {
-            background-color: #ddd;
-            transform: scale(1.05);
-        }
-        .btn-linia:active {
-            transform: scale(0.98);
-        }
-
-        .btn-linia.active {
-            background-color: #333;
-            color: #fff;
+        .location-link:hover {
+            color: var(--shinto-green) !important;
+            text-decoration: underline !important;
         }
     </style>
-
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+
+<nav class="navbar navbar-expand-lg navbar-custom static-top">
     <div class="container">
-        <a class="navbar-brand" href="/">Jednostka Komunkacji Miejskiej</a>
+        <a class="navbar-brand d-flex align-items-center" href="/">
+            <i class="bi bi-bus-front me-2" style="font-size: 1.5rem;"></i>
+            <span>Jednostka Komunikacji Miejskiej</span>
+        </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
-                aria-controls="navbarResponsive"
-                aria-expanded="false" aria-label="Toggle navigation">
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/login}">Zaloguj</a>
+                    <a class="nav-link" th:href="@{/login}">
+                        <i class="bi bi-person-circle"></i> Zaloguj się
+                    </a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
+
 <div class="container">
-    <div class="row">
-        <div class="col-md-10 mt-5">
-            <label style="font-size:30px">Witaj na stronie głównej!</label>
-            <div style="font-size:20px">Jeśli chcesz się zalogować, kliknij <a th:href="@{/login}"><b>tutaj</b></a> lub
-                w
-                prawym górnym rogu.
-            </div>
+
+    <div class="row hero-text">
+        <div class="col-md-12">
+            <h1>Witaj w systemie komunikacji!</h1>
+            <p class="lead">
+                Sprawdź rozkład jazdy poniżej. Jesteś pracownikiem?
+                <a th:href="@{/login}">Zaloguj się tutaj</a>.
+            </p>
         </div>
     </div>
 
-    <!-- Table -->
-    <div style="margin-top:35px">
-        <label style="font-size:25px"><b>Linie</b></label>
-
-<!--        <div class="grid">-->
-<!--            <div class="cell"-->
-<!--                 th:each="linia : ${listLinie}"-->
-<!--                 th:text="${linia.getNr_linii()}">-->
-<!--            </div>-->
-<!--        </div>-->
+    <div class="lines-container">
+        <h4 class="mb-3 border-bottom pb-2">Wybierz linię autobusową</h4>
         <div class="grid">
             <a th:each="linia : ${listLinie}"
                th:href="@{/bus_stops/{nr_linii}(nr_linii=${linia.nr_linii})}"
                th:text="${linia.nr_linii}"
                class="btn-linia"
-               th:classappend="${linia.nr_linii == wybranaLinia} ? ' active' : ''"></a>
+               th:classappend="${linia.nr_linii == wybranaLinia} ? ' active' : ''">
+            </a>
         </div>
-
-        <div th:if="${wybranaLinia != null}">
-            <h2>Przystanki dla linii: <span th:text="${wybranaLinia}"></span></h2>
-            <table>
-                <thead>
-                <tr>
-                    <th>Kolejność</th>
-                    <th>Miasto</th>
-                    <th>Ulica</th>
-                    <th>Nr przystanku</th>
-                    <th>Odległość od następnego</th>
-                    <th>Czas do następnego</th>
-                    <th>Czy na żądanie</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="p : ${przystanek_w_linii}">
-                    <td th:text="${p.kolejnosc}"></td>
-
-                    <td th:text="${mapaPrzystankow[p.nr_przystanku].miasto}"></td>
-                    <td th:text="${mapaPrzystankow[p.nr_przystanku].ulica}"></td>
-
-                    <td th:text="${p.nr_przystanku}"></td>
-                    <td th:text="${p.odleglosc_do_nastepnego}"></td>
-                    <td th:text="${p.czas_do_nastepnego}"></td>
-                    <td th:text="${p.czy_na_zadanie}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-
-<!--        <table id="auto" >-->
-<!--            <thead>-->
-<!--            <tr>-->
-<!--                <th>Nr przystanku</th>-->
-<!--                <th>Miasto</th>-->
-<!--                <th>Strefa</th>-->
-<!--                <th>Ulica</th>-->
-<!--                <th>Dzielnica</th>-->
-<!--                <th>Współrzędne GPS długość</th>-->
-<!--                <th>Współrzędne GPS szerokość</th>-->
-<!--                <th>Nr jednostki</th>-->
-<!--            </tr>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-<!--            <tr>-->
-<!--            <tr th:each="linia : ${listLinie}">-->
-<!--                <td th:text="${linia.getNr_linii()}"></td>-->
-<!--                <td th:text="${przystanki.miasto}"></td>-->
-<!--                <td th:each="linia : ${listLinie}">-->
-<!--                    <span th:text="${linia.getNr_linii()}"></span>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            </tbody>-->
-<!--        </table>-->
     </div>
-<!--///////////////////////////////////////////////////////////////////////////////////-->
-    <!-- Table -->
-<!--    <div style="margin-top:35px">-->
-<!--        <label style="font-size:25px"><b>Kursy</b></label>-->
-<!--        <table class="table table-bordered">-->
-<!--            <thead>-->
-<!--            <tr>-->
-<!--                <th>Nr kursu</th>-->
-<!--                <th>Data rozpoczęcia</th>-->
-<!--                <th>Data zakończenia</th>-->
-<!--                <th>Nr autobusu</th>-->
-<!--                <th>Nr linii</th>-->
-<!--                <th>Nr jednostki</th>-->
-<!--            </tr>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-<!--            <tr th:each="kursy : ${listKursy}">-->
-<!--                <form th:action="@{/sprzedawca_bilety/update}" th:object="${bilety}" method="post">-->
-<!--                    <td><label>-->
-<!--                        <input type="number" name="nrBiletu" th:value="${bilety.nrBiletu}" readonly/>-->
-<!--                    </label></td>-->
-<!--                    <td><label>-->
-<!--                        <input type="date" name="dataSprzedazy" th:value="${bilety.dataSprzedazy}"/>-->
-<!--                    </label></td>-->
-<!--                    <td><select name="nrOgrodu" class="form-select">-->
-<!--                        <option th:each="o : ${listOgrody}"-->
-<!--                                th:value="${o.nrOgrodu}"-->
-<!--                                th:text="${o.nazwaOgrodu}"-->
-<!--                                th:selected="${o.nrOgrodu == bilety.nrOgrodu}">-->
-<!--                        </option>-->
-<!--                    </select></td>-->
-<!--                    <td><select name="nrPracownika" class="form-select">-->
-<!--                        <option th:each="p : ${listPrzewodnicy}"-->
-<!--                                th:value="${p.nrPracownika}"-->
-<!--                                th:text="${p.nrPracownika}"-->
-<!--                                th:selected="${p.nrPracownika == bilety.nrPracownika}">-->
-<!--                        </option>-->
-<!--                    </select></td>-->
-<!--                    <td><select name="nrTypuBiletu" class="form-select">-->
-<!--                        <option th:each="t : ${listTypyBiletow}"-->
-<!--                                th:value="${t.nrTypuBiletu}"-->
-<!--                                th:text="${t.nazwaTypuBiletu}"-->
-<!--                                th:selected="${t.nrTypuBiletu == bilety.nrTypuBiletu}">-->
-<!--                        </option>-->
-<!--                    </select></td>-->
-<!--                    <td>-->
-<!--                        <button class="btn btn-primary" type="submit">Zapisz</button>-->
-<!--                        <a class="btn btn-danger"-->
-<!--                           th:href="@{'/sprzedawca_bilety/delete/' + ${bilety.nrBiletu}}">Usuń</a>-->
-<!--                    </td>-->
-<!--                </form>-->
-<!--            </tr>-->
-<!--            </tbody>-->
-<!--        </table>-->
-<!--    </div>-->
-<!--</div>-->
 
-<!--<div class="content-card">-->
+    <div th:if="${wybranaLinia != null}" class="timeline-section">
 
-<!--    &lt;!&ndash; Table &ndash;&gt;-->
-<!--    <form action="/" th:action="@{/sprzedawca_bilety/save}" th:object="${bilety}" method="post">-->
-<!--        <label style="font-size:25px"><b>Dodaj Bilet</b></label>-->
-<!--        <table class="table table-bordered">-->
-<!--            <thead>-->
-<!--            <tr>-->
-<!--                <th>Data Sprzedaży</th>-->
-<!--                <th>Ogród</th>-->
-<!--                <th>Nr Przewodnika</th>-->
-<!--                <th>Typ Biletu</th>-->
-<!--                <th>Dodaj</th>-->
-<!--            </tr>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-<!--            <tr>-->
-<!--                <td><label>-->
-<!--                    <input type="date" size="30" class="narrow-font" th:field="*{dataSprzedazy}">-->
-<!--                </label></td>-->
-<!--                <td>-->
-<!--                    <select class="form-select narrow-font" th:field="*{nrOgrodu}">-->
-<!--                        <option th:each="o : ${listOgrody}"-->
-<!--                                th:value="${o.nrOgrodu}"-->
-<!--                                th:text="${o.nazwaOgrodu}">-->
-<!--                        </option>-->
-<!--                    </select>-->
-<!--                </td>-->
-<!--                <td>-->
-<!--                    <select class="form-select narrow-font" th:field="*{nrPracownika}">-->
-<!--                        <option th:each="p : ${listPrzewodnicy}"-->
-<!--                                th:value="${p.nrPracownika}"-->
-<!--                                th:text="${p.nrPracownika}">-->
-<!--                        </option>-->
-<!--                    </select>-->
-<!--                </td>-->
-<!--                <td>-->
-<!--                    <select class="form-select narrow-font" th:field="*{nrTypuBiletu}">-->
-<!--                        <option th:each="t : ${listTypyBiletow}"-->
-<!--                                th:value="${t.nrTypuBiletu}"-->
-<!--                                th:text="${t.nazwaTypuBiletu}">-->
-<!--                        </option>-->
-<!--                    </select>-->
-<!--                </td>-->
-<!--                <td colspan="2">-->
-<!--                    <button class="btn btn-primary" type="submit">Dodaj</button>-->
-<!--                </td>-->
-<!--            </tr>-->
-<!--            </tbody>-->
-<!--        </table>-->
-<!--    </form>-->
-<!--</div>-->
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <h3 class="m-0 text-dark">
+                Trasa linii: <span style="color: var(--sunrise-orange); font-weight: 800;" th:text="${wybranaLinia}"></span>
+            </h3>
+            <div class="d-none d-md-block" style="font-size: 0.85rem;">
+                <span class="me-3">
+                    <span style="display:inline-block; width:12px; height:12px; background:var(--shinto-green); border-radius:50%;"></span> Stały
+                </span>
+                <span>
+                    <span style="display:inline-block; width:12px; height:12px; border: 3px solid var(--sunrise-orange); border-radius:50%;"></span> Na żądanie
+                </span>
+            </div>
+        </div>
 
-    <div class="imageBackground" style="margin: auto"></div>
+        <div class="timeline">
+            <div class="timeline-row" th:each="p, iterStat : ${przystanek_w_linii}">
+
+                <div class="timeline-time">
+                    <div th:if="${!iterStat.last}">
+                        <div class="time-val" th:text="'+ ' + ${p.czas_do_nastepnego} + ' min'"></div>
+                        <div class="dist-val" th:text="${p.odleglosc_do_nastepnego} + ' m'"></div>
+                    </div>
+                    <span th:if="${iterStat.last}">Koniec</span>
+                </div>
+
+                <div class="timeline-marker">
+                    <div class="timeline-dot" th:classappend="${p.czy_na_zadanie == 'T'} ? 'request' : ''"></div>
+                    <div class="timeline-line" th:if="${!iterStat.last}"></div>
+                </div>
+
+                <div class="timeline-content">
+                    <h5 class="mb-1">
+                        <span class="text-muted fw-light me-2" style="font-size: 0.8em;">
+                            <i class="bi bi-hash"></i><span th:text="${p.nr_przystanku}"></span>
+                        </span>
+
+                        <span th:text="${mapaPrzystankow[p.nr_przystanku].ulica}">Ulica</span>
+
+                        <span th:if="${p.czy_na_zadanie == 'T'}" class="badge badge-request ms-2">NA ŻĄDANIE</span>
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        <a href="#" class="text-decoration-none text-muted location-link"
+                           data-bs-toggle="modal" data-bs-target="#mapModal"
+                           th:attr="onclick='openMap(\'' + ${mapaPrzystankow[p.nr_przystanku].wspolrzedne_gps_szerokosc} + '\', \'' + ${mapaPrzystankow[p.nr_przystanku].wspolrzedne_gps_dlugosc} + '\', \'' + ${mapaPrzystankow[p.nr_przystanku].ulica} + '\')'">
+
+                            <i class="bi bi-geo-alt-fill me-1 text-danger"></i>
+                            <span th:text="${mapaPrzystankow[p.nr_przystanku].miasto}">Miasto</span>
+                            <span style="font-size: 0.8em; margin-left: 5px;">(Pokaż na mapie)</span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="image-container">
+    </div>
 
 </div>
 
+<div class="modal fade" id="mapModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-map"></i> Lokalizacja: <span id="mapTitle"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div id="osmMap" style="width: 100%; height: 450px;"></div>
+            </div>
+            <div class="modal-footer">
+                <small class="text-muted me-auto">Dane mapy © OpenStreetMap contributors</small>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
-<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:src="@{/js/scripts.js}"></script>
 
 </body>
 </html>

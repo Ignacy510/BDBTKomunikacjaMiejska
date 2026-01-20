@@ -1,65 +1,74 @@
 <!DOCTYPE HTML>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<script>
-    history.replaceState('data to be passed', 'Title of the page', "/");
-</script>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>Login Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Logowanie - JKM</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:rel="stylesheet" th:href="@{/css/style.css}"/>
 
+    <script>
+        history.replaceState('data', 'Title', "/");
+    </script>
 </head>
-<body>
-<!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+<body style="background-color: var(--imperial-white);">
+
+<nav class="navbar navbar-expand-lg navbar-custom static-top">
     <div class="container">
-        <a class="navbar-brand" href="/">Spring Boot projekt - część II</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
-                aria-controls="navbarResponsive"
-                aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" th:href="@{/index}">Strona główna</a>
-                </li>
-            </ul>
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" th:href="@{/login}">Zaloguj (aktywne)</a>
-                </li>
-            </ul>
-        </div>
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-bus-front"></i> JKM - Powrót
+        </a>
     </div>
 </nav>
-<div class="container">
-    <div class="row">
-        <div class="col-md-4 mt-5">
+
+<div class="container login-container">
+
+    <div class="login-card">
+
+        <div class="login-header">
+            <h3>Zaloguj się</h3>
+            <p class="mb-0" style="opacity: 0.9; font-size: 0.9rem;">Dostęp do systemu JKM</p>
+        </div>
+
+        <div class="login-body">
+
+            <div th:if="${param.error}" class="alert alert-danger text-center p-2 mb-3" style="font-size: 0.9rem;">
+                Błędny login lub hasło!
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success text-center p-2 mb-3" style="font-size: 0.9rem;">
+                Wylogowano pomyślnie.
+            </div>
+
             <form method="post" th:action="@{/login}">
-                <div class="form-group">
-                    <label for="login" style="margin-bottom:5px">Nazwa użytkownika:</label>
-                    <input id="login" type="text" placeholder="Wprowadź login" autocomplete="off" class="form-control" name="username"/>
+
+                <div class="mb-3">
+                    <label for="login" class="form-label fw-bold" style="color: var(--shinto-green);">Nazwa użytkownika</label>
+                    <input id="login" type="text" placeholder="Wpisz login" autocomplete="off"
+                           class="form-control" name="username" required autofocus/>
                 </div>
-                <div class="form-group" style="margin-top:10px">
-                    <label for="password" style="margin-bottom:5px">Hasło:</label>
-                    <input id="password" type="password" placeholder="Wprowadź hasło" autocomplete="off"
-                           class="form-control" name="password"/>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-bold" style="color: var(--shinto-green);">Hasło</label>
+                    <input id="password" type="password" placeholder="Wpisz hasło" autocomplete="off"
+                           class="form-control" name="password" required/>
                 </div>
-                <div th:if="${param.error}" style="color:red; margin-top:5px; margin-bottom:5px">
-                    BŁĄD: Niepoprawny login lub hasło!
-                </div>
-                <div style="margin-top:15px">
-                    <button class="btn btn-primary" type="submit" value="Sign In">Zaloguj się</button>
+
+                <div class="d-grid">
+                    <button class="btn btn-login" type="submit">Zaloguj się</button>
                 </div>
             </form>
+
+            <div class="text-center mt-4">
+                <a th:href="@{/}" style="color: var(--shinto-green); text-decoration: none; font-size: 0.9rem;">
+                    &larr; Wróć na stronę główną
+                </a>
+            </div>
         </div>
     </div>
 </div>
-<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<script th:src="@{/webjars/popper.js/umd/popper.min.js}"></script>
-<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
