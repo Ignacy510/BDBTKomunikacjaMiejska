@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 @Controller
 public class AppController implements WebMvcConfigurer {
 
-    //private final SalesDAO dao;
     private final AdresyDAO adresyDAO;
     private final AutobusyDAO autobusyDAO;
     private final BiletyDAO biletyDAO;
@@ -45,9 +44,7 @@ public class AppController implements WebMvcConfigurer {
     private final InMemoryUserDetailsManager userDetailsManager;
     private final PasswordEncoder passwordEncoder;
 
-    //SalesDAO dao
     public AppController(AdresyDAO adresyDAO, AutobusyDAO autobusyDAO, BiletyDAO biletyDAO, CzasoweDAO czasoweDAO, DlugoterminoweDAO dlugoterminoweDAO, Jednostki_KomunikacjiDAO jednostki_komunikacjiDAO, KierowcyDAO kierowcyDAO, KontrolerzyDAO kontrolerzyDAO, KursyDAO kursyDAO, LinieDAO linieDAO, MarkiDAO markiDAO, ModeleDAO modeleDAO, ObsadyDAO obsadyDAO, PracownicyDAO pracownicyDAO, PrzypisaniaDAO przypisaniaDAO, Przystanek_w_liniiDAO przystanek_w_liniiDAO, PrzystankiDAO przystankiDAO, WynagrodzeniaDAO wynagrodzeniaDAO, InMemoryUserDetailsManager userDetailsManager, PasswordEncoder passwordEncoder) {
-        //this.dao = dao;
         this.adresyDAO = adresyDAO;
         this.autobusyDAO = autobusyDAO;
         this.biletyDAO = biletyDAO;
@@ -72,44 +69,6 @@ public class AppController implements WebMvcConfigurer {
 
     @GetMapping({"/index", "/"})
     public String viewHomePage(Model model){
-        //List<Sale> listSale = dao.list();
-        //model.addAttribute("listSale", listSale);
-//        List<Adresy> listAdresy = adresyDAO.list();
-//        model.addAttribute("listAdresy", listAdresy);
-//        List<Autobusy> listAutobusy = autobusyDAO.list();
-//        model.addAttribute("listAutobusy", listAutobusy);
-//        List<Bilety> listBilety = biletyDAO.list();
-//        model.addAttribute("listBilety", listBilety);
-//        List<Czasowe> listCzasowe = czasoweDAO.list();
-//        model.addAttribute("listCzasowe", listCzasowe);
-//        List<Dlugoterminowe> listDlugoterminowe = dlugoterminoweDAO.list();
-//        model.addAttribute("listDlugoterminowe", listDlugoterminowe);
-//        List<Jednostki_Komunikacji> listJednostki_Komunikacji = jednostki_komunikacjiDAO.list();
-//        model.addAttribute("listJednostki_Komunikacji", listJednostki_Komunikacji);
-//        List<Kierowcy> listKierowcy = kierowcyDAO.list();
-//        model.addAttribute("listKierowcy", listKierowcy);
-//        List<Kontrolerzy> listKontrolerzy = kontrolerzyDAO.list();
-//        model.addAttribute("listKontrolerzy", listKontrolerzy);
-//        List<Kursy> listKursy = kursyDAO.list();
-//        model.addAttribute("listKursy", listKursy);
-//        List<Linie> listLinie = linieDAO.list();
-//        model.addAttribute("listLinie", listLinie);
-//        List<Marki> listMarki = markiDAO.list();
-//        model.addAttribute("listMarki", listMarki);
-//        List<Modele> listModele = modeleDAO.list();
-//        model.addAttribute("listModele", listModele);
-//        List<Obsady> listObsady = obsadyDAO.list();
-//        model.addAttribute("listObsady", listObsady);
-//        List<Pracownicy> listPracownicy = pracownicyDAO.list();
-//        model.addAttribute("listPracownicy", listPracownicy);
-//        List<Przypisania> listPrzypisania = przypisaniaDAO.list();
-//        model.addAttribute("listPrzypisania", listPrzypisania);
-//        List<Przystanek_w_linii> listPrzystanek_w_linii = przystanek_w_liniiDAO.list();
-//        model.addAttribute("listPrzypstanek_w_linii", listPrzystanek_w_linii);
-//        List<Przystanki> listPrzystanki = przystankiDAO.list();
-//        model.addAttribute("listPrzystanki", listPrzystanki);
-//        List<Wynagrodzenia> listWynagrodzenia = wynagrodzeniaDAO.list();
-//        model.addAttribute("listWynagrodzenia", listWynagrodzenia);
         model.addAttribute("listLinie", linieDAO.list());
         model.addAttribute("linie",  new Linie());
 
@@ -121,63 +80,6 @@ public class AppController implements WebMvcConfigurer {
 
     @RequestMapping(value = {"/admin_main"})
     public String viewAdminPage(Model model){
-        //List<Sale> listSale = dao.list();
-        //model.addAttribute("listSale", listSale);
-        //Sale sale = new Sale();
-        //model.addAttribute("sale", sale);
-//        List<Adresy> listAdresy = adresyDAO.list();
-//        model.addAttribute("listAdresy", listAdresy);
-//        Adresy adresy = new Adresy();
-//        model.addAttribute("adresy", adresy);
-//        List<Autobusy> listAutobusy = autobusyDAO.list();
-//        model.addAttribute("listAutobusy", listAutobusy);
-//        Autobusy autobusy = new Autobusy();
-//        model.addAttribute("autobusy", autobusy);
-//        List<Bilety> listBilety = biletyDAO.list();
-//        model.addAttribute("listBilety", listBilety);
-//        Bilety bilety = new Bilety();
-//        model.addAttribute("bilety", bilety);
-//        List<Czasowe> listCzasowe = czasoweDAO.list();
-//        model.addAttribute("listCzasowe", listCzasowe);
-//        Czasowe czasowe = new Czasowe();
-//        model.addAttribute("czasowe", czasowe);
-//        List<Dlugoterminowe> listDlugoterminowe = dlugoterminoweDAO.list();
-//        model.addAttribute("listDlugoterminowe", listDlugoterminowe);
-//        Dlugoterminowe dlugoterminowe = new Dlugoterminowe();
-//        model.addAttribute("dlugoterminowe", dlugoterminowe);
-//        List<Jednostki_Komunikacji> listJednostki_Komunikacji = jednostki_komunikacjiDAO.list();
-//        model.addAttribute("listJednostki_Komunikacji",  listJednostki_Komunikacji);
-//        Jednostki_Komunikacji jednostki_komunikacji = new Jednostki_Komunikacji();
-//        model.addAttribute("jednostki_komunikacji", jednostki_komunikacji);
-//        List<Kierowcy> listKierowcy = kierowcyDAO.list();
-//        model.addAttribute("listKierowcy", listKierowcy);
-//        Kierowcy kierowcy = new Kierowcy();
-//        model.addAttribute("kierowcy", kierowcy);
-//        List<Kontrolerzy> listKontrolerzy = kontrolerzyDAO.list();
-//        model.addAttribute("listKontrolerzy", listKontrolerzy);
-//        Kontrolerzy kontrolerzy = new Kontrolerzy();
-//        model.addAttribute("kontrolerzy", kontrolerzy);
-//        List<Kursy> listKursy = kursyDAO.list();
-//        model.addAttribute("listKursy", listKursy);
-//        Kursy kursy = new Kursy();
-//        model.addAttribute("kursy", kursy);
-//        List<Linie> listLinie = linieDAO.list();
-//        model.addAttribute("listLinie", listLinie);
-//        Linie linie = new Linie();
-//        model.addAttribute("linie", linie);
-//        List<Marki> listMarki = markiDAO.list();
-//        model.addAttribute("listMarki", listMarki);
-//        Marki marki = new Marki();
-//        model.addAttribute("marki", marki);
-//        List<Modele> listModele = modeleDAO.list();
-//        model.addAttribute("listModele", listModele);
-//        Modele modele = new Modele();
-//        model.addAttribute("modele", modele);
-//        List<Obsady> listObsady = obsadyDAO.list();
-//        model.addAttribute("listObsady", listObsady);
-//        Obsady obsady = new Obsady();
-//        model.addAttribute("obsady", obsady);
-
         List<Pracownicy> pracownicy = pracownicyDAO.list();
 
         Map<Integer, Boolean> mapaKont = pracownicy.stream()
@@ -199,24 +101,6 @@ public class AppController implements WebMvcConfigurer {
         model.addAttribute("pracownicy", new Pracownicy());
         model.addAttribute("mapaKont", mapaKont);
         model.addAttribute("mapaAdresow", mapaAdresow);
-
-//        List<Przypisania> listPrzypisania = przypisaniaDAO.list();
-//        model.addAttribute("listPrzypisania", listPrzypisania);
-//        Przypisania przypisania = new Przypisania();
-//        model.addAttribute("przypisania", przypisania);
-//        List<Przystanek_w_linii> listPrzystanek_w_linii = przystanek_w_liniiDAO.list();
-//        model.addAttribute("listPrzypstanek_w_linii", listPrzystanek_w_linii);
-//        Przystanek_w_linii przystanek_w_linii = new Przystanek_w_linii();
-//        model.addAttribute("przystanek_w_linii", przystanek_w_linii);
-//        List<Przystanki> listPrzystanki = przystankiDAO.list();
-//        model.addAttribute("listPrzystanki", listPrzystanki);
-//        Przystanki przystanki = new Przystanki();
-//        model.addAttribute("przystanki", przystanki);
-//        List<Wynagrodzenia> listWynagrodzenia = wynagrodzeniaDAO.list();
-//        model.addAttribute("listWynagrodzenia", listWynagrodzenia);
-//        Wynagrodzenia wynagrodzenia = new Wynagrodzenia();
-//        model.addAttribute("wynagrodzenia", wynagrodzenia);
-
 
         return "admin/admin_main";
     }
@@ -354,6 +238,41 @@ public class AppController implements WebMvcConfigurer {
         return "user/user_main";
     }
 
+    // --- NOWA METODA: Edycja kontaktu (Telefon i Email) ---
+    @PostMapping("/user/updateContact")
+    public String updateUserContact(@RequestParam("newPhone") String newPhone,
+                                    @RequestParam("newEmail") String newEmail,
+                                    Principal principal) {
+        String login = principal.getName();
+        int finalIdPracownika = -1;
+
+        String numbers = login.replaceAll("[^0-9]", "");
+        if (!numbers.isEmpty()) {
+            try {
+                finalIdPracownika = Integer.parseInt(numbers);
+            } catch (NumberFormatException e) {}
+        }
+
+        if ("user1".equals(login)) finalIdPracownika = 1;
+        if ("user2".equals(login)) finalIdPracownika = 2;
+
+        if (finalIdPracownika != -1) {
+            int id = finalIdPracownika;
+            Pracownicy pracownik = pracownicyDAO.list().stream()
+                    .filter(p -> p.getNr_pracownika() == id)
+                    .findFirst()
+                    .orElse(null);
+
+            if (pracownik != null) {
+                pracownik.setNr_telefonu(newPhone);
+                pracownik.setEmail(newEmail);
+                pracownicyDAO.update(pracownik);
+            }
+        }
+        return "redirect:/user_main";
+    }
+    // ----------------------------------------------------
+
     @GetMapping("/bus_stops/{nr_linii}")
     public String showBusStops(@PathVariable int nr_linii, Model model) {
         model.addAttribute("listLinie", linieDAO.list());
@@ -366,7 +285,6 @@ public class AppController implements WebMvcConfigurer {
         model.addAttribute("mapaPrzystankow", mapaPrzystankow);
         return "index";
     }
-
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     public String save(@ModelAttribute("pracownicy") Pracownicy pracownicy,
@@ -404,12 +322,7 @@ public class AppController implements WebMvcConfigurer {
     }
 
     public void addViewControllers(ViewControllerRegistry registry){
-//        registry.addViewController("/index").setViewName("index");
-//        registry.addViewController("/").setViewName("index");
         registry.addViewController("/login").setViewName("login");
-//        registry.addViewController("/perspectives").setViewName("perspectives");
-//        registry.addViewController("/admin_main").setViewName("admin/admin_main");
-//        registry.addViewController("/user_main").setViewName("user/user_main");
     }
 
     @Controller

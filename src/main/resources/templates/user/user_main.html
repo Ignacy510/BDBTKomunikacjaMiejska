@@ -4,17 +4,13 @@
     <meta charset="UTF-8"/>
     <title>Panel Pracownika</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link th:rel="stylesheet" th:href="@{/css/style.css}"/>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
-        .clickable-row {
-            cursor: pointer;
-        }
-        .clickable-row:hover {
-            background-color: #fff3e0 !important;
-        }
-
+        .clickable-row { cursor: pointer; }
+        .clickable-row:hover { background-color: #fff3e0 !important; }
 
         .arrow-icon {
             float: right;
@@ -23,14 +19,34 @@
             transition: transform 0.3s ease;
             display: inline-block;
         }
-
-        .clickable-row[aria-expanded="true"] .arrow-icon {
-            transform: rotate(180deg);
-        }
-
-
+        .clickable-row[aria-expanded="true"] .arrow-icon { transform: rotate(180deg); }
         .badge-status-planned { background-color: var(--shinto-green); }
         .badge-status-progress { background-color: var(--sunrise-orange); }
+
+        .data-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6c757d;
+            margin-bottom: 2px;
+        }
+        .data-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--shinto-green);
+        }
+
+        .edit-container {
+            background-color: #fcfcfc;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+
+        .invalid-feedback {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
     </style>
 </head>
 <body>
@@ -70,31 +86,84 @@
                 <p class="lead">Witaj <span style="color: var(--sunrise-orange); font-weight: bold;" th:if="${pracownik != null}" th:text="${pracownik.imie}"></span><span th:if="${pracownik == null}" sec:authentication="principal.username"></span>!</p>
             </div>
 
-            <div th:if="${pracownik != null}" class="schedule-container mb-5" style="padding: 0;">
-                <div class="schedule-header">
-                    Twoje Dane Osobowe
+            <div th:if="${pracownik != null}" class="schedule-container mb-5" style="padding: 30px;">
+
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                    <h5 class="m-0 text-dark fw-bold"><i class="bi bi-person-badge me-2 text-success"></i>Karta Osobowa</h5>
+                    <span class="badge bg-light text-dark border"></span>
                 </div>
-                <div class="p-4">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <strong style="color: var(--shinto-green)">Imię i Nazwisko:</strong><br>
-                            <span th:text="${pracownik.imie}"></span> <span th:text="${pracownik.nazwisko}"></span>
-                        </div>
-                        <div class="col-md-4">
-                            <strong style="color: var(--shinto-green)">Numer Pracownika:</strong><br>
-                            <span th:text="${pracownik.nr_pracownika}"></span>
-                        </div>
-                        <div class="col-md-4">
-                            <strong style="color: var(--shinto-green)">Email:</strong><br>
-                            <span th:text="${pracownik.email}"></span>
-                        </div>
+
+                <div class="row g-4">
+                    <div class="col-md-2 border-end">
+                        <div class="data-label">Nr Pracownika</div>
+                        <div class="data-value" th:text="${pracownik.nr_pracownika}"></div>
                     </div>
+                    <div class="col-md-4 border-end">
+                        <div class="data-label">Imię i Nazwisko</div>
+                        <div class="data-value text-dark" th:text="${pracownik.imie} + ' ' + ${pracownik.nazwisko}"></div>
+                    </div>
+                    <div class="col-md-3 border-end">
+                        <div class="data-label">PESEL</div>
+                        <div class="data-value text-muted" th:text="${pracownik.pesel}"></div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="data-label">Data Zatrudnienia</div>
+                        <div class="data-value text-muted" th:text="${#strings.substring(pracownik.data_zatrudnienia, 0, 10)}"></div>
+                    </div>
+                </div>
+
+                <div class="edit-container">
+                    <form th:action="@{/user/updateContact}" method="post" class="needs-validation" novalidate>
+                        <div class="row align-items-start g-3">
+                            <div class="col-12 mb-1">
+                                <span class="text-success fw-bold small"><i class="bi bi-pencil-square me-1"></i>DANE KONTAKTOWE</span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="newPhone" class="form-label small text-muted">NUMER TELEFONU</label>
+                                <div class="input-group has-validation">
+                                    <span class="input-group-text bg-white border-success text-success"><i class="bi bi-telephone-fill"></i></span>
+
+                                    <input type="text" class="form-control border-success fw-bold" id="newPhone" name="newPhone"
+                                           th:value="${pracownik.nr_telefonu}"
+                                           pattern="[\+]?[\d\s-]{9,12}"
+                                           maxlength="12"
+                                           required placeholder="+48123456789">
+
+                                    <div class="invalid-feedback">
+                                        Max 12 znaków (np. +48123456789).
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <label for="newEmail" class="form-label small text-muted">ADRES EMAIL</label>
+                                <div class="input-group has-validation">
+                                    <span class="input-group-text bg-white border-success text-success"><i class="bi bi-envelope-fill"></i></span>
+
+                                    <input type="email" class="form-control border-success fw-bold" id="newEmail" name="newEmail"
+                                           th:value="${pracownik.email}"
+                                           pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$"
+                                           required maxlength="30" placeholder="jan@domena.pl">
+
+                                    <div class="invalid-feedback">
+                                        Max 30 znaków (musi być @ i kropka).
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3" style="padding-top: 1.8rem;">
+                                <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm">
+                                    <i class="bi bi-check-lg me-1"></i> ZAPISZ
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
 
             <div th:if="${pracownik != null}">
                 <h3 class="mb-3" style="color: var(--text-dark)">Twój Grafik (Przypisane Kursy)</h3>
-                <p class="text-muted small"><i class="bi bi-info-circle"></i> Kliknij w wiersz tabeli, aby rozwinąć szczegóły trasy i pojazdu.</p>
 
                 <div th:if="${mojeKursy == null || mojeKursy.isEmpty()}" class="alert alert-warning">
                     Nie masz zaplanowanych żadnych kursów w najbliższym czasie.
@@ -116,26 +185,16 @@
 
                         <tr class="clickable-row" data-bs-toggle="collapse" th:data-bs-target="'#details-' + ${kurs.nr_kursu}" aria-expanded="false">
                             <td class="fw-bold" th:text="${kurs.nr_kursu}"></td>
-
                             <td th:text="${kurs.data_rozpoczecia}"></td>
                             <td th:text="${kurs.data_zakonczenia}"></td>
-
                             <td><span class="badge bg-secondary" th:text="${kurs.nr_linii}"></span></td>
-
                             <td th:text="${mapaAutobusow.get(kurs.nr_kursu).nr_rejestracyjny}"></td>
-
                             <td>
-                                <span th:if="${mapaStatusow.get(kurs.nr_kursu) == 'Zakończony'}"
-                                      class="badge bg-secondary">Zakończony</span>
-
-                                <span th:if="${mapaStatusow.get(kurs.nr_kursu) == 'Zaplanowany'}"
-                                      class="badge badge-status-planned">Zaplanowany</span>
-
-                                <span th:if="${mapaStatusow.get(kurs.nr_kursu) == 'W trakcie'}"
-                                      class="badge badge-status-progress">
+                                <span th:if="${mapaStatusow.get(kurs.nr_kursu) == 'Zakończony'}" class="badge bg-secondary">Zakończony</span>
+                                <span th:if="${mapaStatusow.get(kurs.nr_kursu) == 'Zaplanowany'}" class="badge badge-status-planned">Zaplanowany</span>
+                                <span th:if="${mapaStatusow.get(kurs.nr_kursu) == 'W trakcie'}" class="badge badge-status-progress">
                                       W trakcie <span class="spinner-grow spinner-grow-sm" style="width: 0.7rem; height: 0.7rem;" role="status"></span>
                                 </span>
-
                                 <span class="arrow-icon">&#9660;</span>
                             </td>
                         </tr>
